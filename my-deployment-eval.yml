@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-sql-api-deployement
+  labels:
+    app: my-sql-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-sql-api
+  template:
+    metadata:
+      labels:
+        app: my-sql-api
+    spec:
+      shareProcessNamespace: true
+      containers:
+      - name: my-db
+        image: datascientest/mysql-k8s:1.0.0
+        ports:
+        - name: port33
+          containerPort: 3306
+      - name: my-api
+        image: my_api:latest
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: my-key
+        imagePullPolicy: Never
+        ports:
+        - name: port80
+          containerPort: 8000
+
